@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>语音输入助手 - 选项</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+            }
+            label {
+                display: block;
+                margin-top: 10px;
+            }
+            input,
+            select {
+                margin-top: 5px;
+            }
+            button {
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>语音输入助手 - 选项</h1>
+        <label for="apiKey">Whisper API Key:</label>
+        <input type="text" id="apiKey" />
+
+        <label for="language">界面语言:</label>
+        <select id="language">
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+        </select>
+
+        <button id="save">保存</button>
+
+        <script src="options.js"></script>
+    </body>
+</html>

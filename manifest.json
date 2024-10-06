@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "语音输入助手",
+    "version": "1.0",
+    "description": "使用OpenAI的Whisper API进行语音识别的Chrome插件",
+    "permissions": ["activeTab", "storage", "contextMenus"],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/icon16.png",
+            "32": "images/icon32.png",
+            "48": "images/icon48.png",
+            "128": "images/icon128.png"
+        }
+    },
+    "options_page": "options.html",
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    },
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+Space",
+                "mac": "Command+Shift+Space"
+            },
+            "description": "激活语音输入"
+        }
+    },
+    "host_permissions": ["<all_urls>"]
+}
