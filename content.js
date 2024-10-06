@@ -152,11 +152,12 @@ function showRecordingUI() {
     position: fixed;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
+    border-radius: 15px;  // Increased from 5px to 15px
+    padding: 30px;
     display: flex;
     align-items: center;
     z-index: 9999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);  // Added subtle shadow for depth
   `;
 
     // Position the UI near the active element
