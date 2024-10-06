@@ -1,6 +1,14 @@
 let isRecording = false;
 let mediaRecorder;
 let audioChunks = [];
+let audioContext;
+let analyser;
+let dataArray;
+let waveformCanvas;
+let waveformCtx;
+let animationId;
+let activeElement;
+let cursorPosition;
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "startVoiceInput") {
@@ -17,6 +25,18 @@ function toggleRecording() {
 }
 
 function startRecording() {
+    // 保存当前活动元素和光标位置
+    activeElement = document.activeElement;
+    if (
+        activeElement.tagName === "TEXTAREA" ||
+        activeElement.tagName === "INPUT"
+    ) {
+        cursorPosition = activeElement.selectionStart;
+    } else if (activeElement.isContentEditable) {
+        const selection = window.getSelection();
+        cursorPosition = selection.getRangeAt(0).startOffset;
+    }
+
     navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
@@ -30,47 +50,17 @@ function startRecording() {
             isRecording = true;
             showRecordingUI();
 
-            // Add audio visualization
-            const audioContext = new AudioContext();
+            // Set up audio analysis
+            audioContext = new AudioContext();
+            analyser = audioContext.createAnalyser();
             const source = audioContext.createMediaStreamSource(stream);
-            const analyser = audioContext.createAnalyser();
             source.connect(analyser);
-
+            analyser.fftSize = 256;
             const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
+            dataArray = new Uint8Array(bufferLength);
 
-            function updateWaveform() {
-                if (!isRecording) return;
-
-                analyser.getByteTimeDomainData(dataArray);
-                const waveform = document.getElementById("waveform");
-                const ctx = waveform.getContext("2d");
-
-                ctx.clearRect(0, 0, waveform.width, waveform.height);
-                ctx.beginPath();
-                ctx.strokeStyle = "#4CAF50";
-
-                const sliceWidth = waveform.width / bufferLength;
-                let x = 0;
-
-                for (let i = 0; i < bufferLength; i++) {
-                    const v = dataArray[i] / 128.0;
-                    const y = (v * waveform.height) / 2;
-
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-
-                    x += sliceWidth;
-                }
-
-                ctx.stroke();
-                requestAnimationFrame(updateWaveform);
-            }
-
-            updateWaveform();
+            // Start visualizing audio
+            visualizeAudio();
         })
         .catch((error) => {
             console.error("Error accessing microphone:", error);
@@ -82,7 +72,7 @@ function stopRecording() {
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
-        hideRecordingUI();
+        showLoadingUI();
     }
 }
 
@@ -93,6 +83,7 @@ function sendAudioToWhisper() {
     chrome.storage.sync.get("apiKey", function (data) {
         if (!data.apiKey) {
             alert("请在选项页面设置Whisper API Key。");
+            hideRecordingUI();
             return;
         }
 
@@ -118,20 +109,33 @@ function sendAudioToWhisper() {
             .catch((error) => {
                 console.error("Error sending audio to Whisper:", error);
                 alert("语音识别失败，请重试。");
+            })
+            .finally(() => {
+                hideRecordingUI();
             });
     });
 }
 
 function insertTextAtCursor(text) {
-    const activeElement = document.activeElement;
+    // 恢复焦点到原来的元素
+    activeElement.focus();
+
     if (activeElement.isContentEditable) {
+        // 对于可编辑的div等元素
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.setStart(activeElement.firstChild, cursorPosition);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
         document.execCommand("insertText", false, text);
     } else if (
         activeElement.tagName === "TEXTAREA" ||
         activeElement.tagName === "INPUT"
     ) {
-        const start = activeElement.selectionStart;
-        const end = activeElement.selectionEnd;
+        // 对于textarea和input元素
+        const start = cursorPosition;
+        const end = cursorPosition;
         activeElement.value =
             activeElement.value.substring(0, start) +
             text +
@@ -142,11 +146,10 @@ function insertTextAtCursor(text) {
 }
 
 function showRecordingUI() {
-    const activeElement = document.activeElement;
     const uiContainer = document.createElement("div");
     uiContainer.id = "voice-input-ui";
     uiContainer.style.cssText = `
-    position: absolute;
+    position: fixed;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -163,37 +166,98 @@ function showRecordingUI() {
 
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "×";
+    cancelButton.style.cssText = `
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+  `;
     cancelButton.onclick = stopRecording;
 
-    const waveform = document.createElement("canvas");
-    waveform.id = "waveform";
-    waveform.width = 100;
-    waveform.height = 20;
-    waveform.style.margin = "0 10px";
+    waveformCanvas = document.createElement("canvas");
+    waveformCanvas.id = "waveform";
+    waveformCanvas.width = 200;
+    waveformCanvas.height = 40;
+    waveformCanvas.style.margin = "0 10px";
+    waveformCtx = waveformCanvas.getContext("2d");
 
     const timer = document.createElement("span");
     timer.id = "recording-timer";
     timer.textContent = "00:00";
+    timer.style.marginRight = "10px";
 
     const doneButton = document.createElement("button");
     doneButton.textContent = "✔";
+    doneButton.style.cssText = `
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+  `;
     doneButton.onclick = stopRecording;
 
     uiContainer.appendChild(cancelButton);
-    uiContainer.appendChild(waveform);
+    uiContainer.appendChild(waveformCanvas);
     uiContainer.appendChild(timer);
     uiContainer.appendChild(doneButton);
 
     document.body.appendChild(uiContainer);
 
     startTimer();
-    animateWaveform();
+}
+
+function showLoadingUI() {
+    const uiContainer = document.getElementById("voice-input-ui");
+    if (uiContainer) {
+        // Remove existing elements
+        uiContainer.innerHTML = "";
+
+        // Add loading spinner
+        const spinner = document.createElement("div");
+        spinner.style.cssText = `
+      width: 24px;
+      height: 24px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    `;
+        uiContainer.appendChild(spinner);
+
+        // Add loading text
+        const loadingText = document.createElement("span");
+        loadingText.textContent = "正在识别语音...";
+        uiContainer.appendChild(loadingText);
+
+        // Add keyframes for spinner animation
+        const style = document.createElement("style");
+        style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+        document.head.appendChild(style);
+    }
 }
 
 function hideRecordingUI() {
     const uiContainer = document.getElementById("voice-input-ui");
     if (uiContainer) {
         uiContainer.remove();
+    }
+    if (animationId) {
+        cancelAnimationFrame(animationId);
     }
 }
 
@@ -214,36 +278,55 @@ function startTimer() {
     }, 1000);
 }
 
-function animateWaveform() {
-    const waveform = document.getElementById("waveform");
-    const ctx = waveform.getContext("2d");
-    let animationId;
+function visualizeAudio() {
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const sliceWidth = waveformCanvas.width / bufferLength;
+    let x = waveformCanvas.width;
 
-    function drawWaveform() {
-        ctx.clearRect(0, 0, waveform.width, waveform.height);
-        ctx.beginPath();
-        ctx.moveTo(0, waveform.height / 2);
+    waveformCtx.fillStyle = "rgb(240, 240, 240)";
+    waveformCtx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
 
-        for (let i = 0; i < waveform.width; i++) {
-            const y =
-                waveform.height / 2 +
-                Math.sin(i * 0.1 + Date.now() * 0.01) * (waveform.height / 4);
-            ctx.lineTo(i, y);
+    function draw() {
+        animationId = requestAnimationFrame(draw);
+
+        analyser.getByteTimeDomainData(dataArray);
+
+        // 移动现有的波形
+        const imageData = waveformCtx.getImageData(
+            2,
+            0,
+            waveformCanvas.width - 2,
+            waveformCanvas.height
+        );
+        waveformCtx.putImageData(imageData, 0, 0);
+
+        // 绘制新的波形数据
+        waveformCtx.lineWidth = 2;
+        waveformCtx.strokeStyle = "rgb(0, 0, 0)";
+        waveformCtx.beginPath();
+
+        const sliceWidth = (waveformCanvas.width * 1.0) / bufferLength;
+        let x = waveformCanvas.width - 2; // 从右侧开始绘制
+
+        for (let i = 0; i < bufferLength; i++) {
+            const v = dataArray[i] / 128.0;
+            const y = (v * waveformCanvas.height) / 2;
+
+            if (i === 0) {
+                waveformCtx.moveTo(x, y);
+            } else {
+                waveformCtx.lineTo(x, y);
+            }
+
+            x -= sliceWidth;
         }
 
-        ctx.strokeStyle = "#4CAF50";
-        ctx.stroke();
-
-        if (isRecording) {
-            animationId = requestAnimationFrame(drawWaveform);
-        }
+        waveformCtx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
+        waveformCtx.stroke();
     }
 
-    animationId = requestAnimationFrame(drawWaveform);
-
-    return () => {
-        cancelAnimationFrame(animationId);
-    };
+    draw();
 }
 
 // 初始化错误处理
