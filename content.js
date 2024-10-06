@@ -1,4 +1,5 @@
 let isRecording = false;
+let isCanceled = false;
 let mediaRecorder;
 let audioChunks = [];
 let audioContext;
@@ -76,7 +77,44 @@ function stopRecording() {
     }
 }
 
+function cancelRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        isCanceled = true; // Set the canceled flag
+        audioChunks = []; // Clear the recorded audio
+    }
+    hideRecordingUI();
+    restoreFocus();
+}
+
+function restoreFocus() {
+    if (activeElement) {
+        activeElement.focus();
+        if (
+            activeElement.tagName === "TEXTAREA" ||
+            activeElement.tagName === "INPUT"
+        ) {
+            activeElement.selectionStart = activeElement.selectionEnd =
+                cursorPosition;
+        } else if (activeElement.isContentEditable) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.setStart(activeElement.firstChild, cursorPosition);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+}
+
 function sendAudioToWhisper() {
+    if (isCanceled) {
+        // Check if the recording was canceled
+        isCanceled = false; // Reset the flag
+        return; // Exit the function without processing
+    }
+
     const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
     audioChunks = [];
 
@@ -178,7 +216,7 @@ function showRecordingUI() {
     cursor: pointer;
     margin-right: 10px;
   `;
-    cancelButton.onclick = stopRecording;
+    cancelButton.onclick = cancelRecording; // Changed from stopRecording to cancelRecording
 
     waveformCanvas = document.createElement("canvas");
     waveformCanvas.id = "waveform";
