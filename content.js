@@ -72,7 +72,7 @@ function stopRecording() {
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
-        showLoadingUI();
+        showProcessingUI();
     }
 }
 
@@ -189,9 +189,17 @@ function showRecordingUI() {
     const timer = document.createElement("span");
     timer.id = "recording-timer";
     timer.textContent = "00:00";
-    timer.style.marginRight = "10px";
+    timer.style.cssText = `
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    margin-right: 10px;
+    min-width: 40px;
+    text-align: center;
+  `;
 
     const doneButton = document.createElement("button");
+    doneButton.id = "done-button";
     doneButton.textContent = "✔";
     doneButton.style.cssText = `
     background-color: #4CAF50;
@@ -215,40 +223,24 @@ function showRecordingUI() {
     startTimer();
 }
 
-function showLoadingUI() {
-    const uiContainer = document.getElementById("voice-input-ui");
-    if (uiContainer) {
-        // Remove existing elements
-        uiContainer.innerHTML = "";
-
-        // Add loading spinner
-        const spinner = document.createElement("div");
-        spinner.style.cssText = `
-      width: 24px;
-      height: 24px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-    `;
-        uiContainer.appendChild(spinner);
-
-        // Add loading text
-        const loadingText = document.createElement("span");
-        loadingText.textContent = "正在识别语音...";
-        uiContainer.appendChild(loadingText);
-
-        // Add keyframes for spinner animation
-        const style = document.createElement("style");
-        style.textContent = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-        document.head.appendChild(style);
+function showProcessingUI() {
+    const doneButton = document.getElementById("done-button");
+    if (doneButton) {
+        doneButton.innerHTML = `
+        <div style="width: 16px; height: 16px; border: 2px solid #ffffff; border-top: 2px solid #4CAF50; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        `;
+        doneButton.style.cursor = "default";
+        doneButton.onclick = null;
     }
+
+    const style = document.createElement("style");
+    style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+    document.head.appendChild(style);
 }
 
 function hideRecordingUI() {
@@ -281,9 +273,6 @@ function startTimer() {
 function visualizeAudio() {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-    const sliceWidth = waveformCanvas.width / bufferLength;
-    let x = waveformCanvas.width;
-
     waveformCtx.fillStyle = "rgb(240, 240, 240)";
     waveformCtx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
 
@@ -322,7 +311,6 @@ function visualizeAudio() {
             x -= sliceWidth;
         }
 
-        waveformCtx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
         waveformCtx.stroke();
     }
 
