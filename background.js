@@ -1,14 +1,18 @@
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.sync.set(
-        {
-            apiKey: "",
-            apiEndpoint: "",
-            useAzure: false,
-        },
-        () => {
-            console.log("Initial settings saved");
-        }
-    );
+    // Load existing settings
+    chrome.storage.sync.get(["apiKey", "apiEndpoint", "useAzure"], (items) => {
+        // Prepare default settings
+        const defaultSettings = {
+            apiKey: items.apiKey || "",
+            apiEndpoint: items.apiEndpoint || "",
+            useAzure: items.useAzure || false,
+        };
+
+        // Save settings, preserving existing values
+        chrome.storage.sync.set(defaultSettings, () => {
+            console.log("Settings initialized or updated");
+        });
+    });
 });
 
 chrome.contextMenus.create({
