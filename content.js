@@ -33,7 +33,7 @@ function toggleRecording() {
 }
 
 function startRecording() {
-    // 保存当前活动元素和光标位置
+    // Save the current active element and cursor position
     activeElement = document.activeElement;
     if (
         activeElement.tagName === "TEXTAREA" ||
@@ -181,11 +181,11 @@ function sendAudioToWhisper() {
 }
 
 function insertTextAtCursor(text) {
-    // 恢复焦点到原来的元素
+    // Restore focus to the original element
     activeElement.focus();
 
     if (activeElement.isContentEditable) {
-        // 对于可编辑的div等元素
+        // For editable div elements
         const selection = window.getSelection();
         const range = document.createRange();
         range.setStart(activeElement.firstChild, cursorPosition);
@@ -197,7 +197,7 @@ function insertTextAtCursor(text) {
         activeElement.tagName === "TEXTAREA" ||
         activeElement.tagName === "INPUT"
     ) {
-        // 对于textarea和input元素
+        // For textarea and input elements
         const start = cursorPosition;
         const end = cursorPosition;
         activeElement.value =
@@ -373,7 +373,7 @@ function visualizeAudio() {
 
         analyser.getByteTimeDomainData(dataArray);
 
-        // 移动现有的波形
+        // Move existing waveform
         const imageData = waveformCtx.getImageData(
             2,
             0,
@@ -382,13 +382,13 @@ function visualizeAudio() {
         );
         waveformCtx.putImageData(imageData, 0, 0);
 
-        // 绘制新的波形数据
+        // Draw new waveform data
         waveformCtx.lineWidth = 2;
         waveformCtx.strokeStyle = "rgb(0, 0, 0)";
         waveformCtx.beginPath();
 
         const sliceWidth = (waveformCanvas.width * 1.0) / bufferLength;
-        let x = waveformCanvas.width - 2; // 从右侧开始绘制
+        let x = waveformCanvas.width - 2; // Start drawing from the right side
 
         for (let i = 0; i < bufferLength; i++) {
             const v = dataArray[i] / 128.0;
@@ -409,7 +409,7 @@ function visualizeAudio() {
     draw();
 }
 
-// 初始化错误处理
+// Initialize error handling
 window.onerror = function (message, source, lineno, colno, error) {
     console.error("An error occurred:", error);
     alert(chrome.i18n.getMessage("generalError"));
