@@ -12,6 +12,7 @@ let activeElement;
 let cursorPosition;
 
 let escKeyListener = null;
+let isUIVisible = false;
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "startVoiceInput") {
@@ -197,12 +198,12 @@ function showRecordingUI() {
     position: fixed;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
-    border-radius: 15px;  // Increased from 5px to 15px
-    padding: 30px;
+    border-radius: 15px;
+    padding: 5px 12px;
     display: flex;
     align-items: center;
     z-index: 9999;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);  // Added subtle shadow for depth
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   `;
 
     // Position the UI near the active element
@@ -223,7 +224,7 @@ function showRecordingUI() {
     cursor: pointer;
     margin-right: 10px;
   `;
-    cancelButton.onclick = cancelRecording; // Changed from stopRecording to cancelRecording
+    cancelButton.onclick = cancelRecording;
 
     waveformCanvas = document.createElement("canvas");
     waveformCanvas.id = "waveform";
@@ -266,17 +267,24 @@ function showRecordingUI() {
 
     document.body.appendChild(uiContainer);
 
+    // Set focus to the UI container
+    uiContainer.tabIndex = -1;
+    uiContainer.focus();
+
     startTimer();
+    isUIVisible = true;
 
     // Add global event listener for 'Esc' key
-    escKeyListener = (event) => {
-        if (event.key === "Escape" && isRecording) {
-            console.log("Esc key pressed, canceling recording");
-            cancelRecording();
-        }
-    };
-    document.addEventListener("keydown", escKeyListener);
+    document.addEventListener("keydown", handleGlobalKeydown);
     console.log("Global event listener for Esc key added");
+}
+
+function handleGlobalKeydown(event) {
+    if (event.key === "Escape" && isRecording) {
+        console.log("Esc key pressed, canceling recording");
+        cancelRecording();
+        event.preventDefault(); // Prevent the default Esc key behavior
+    }
 }
 
 function showProcessingUI() {
@@ -307,12 +315,10 @@ function hideRecordingUI() {
     if (animationId) {
         cancelAnimationFrame(animationId);
     }
+    isUIVisible = false;
     // Remove the global 'Esc' key event listener
-    if (escKeyListener) {
-        document.removeEventListener("keydown", escKeyListener);
-        escKeyListener = null;
-        console.log("Global event listener for Esc key removed");
-    }
+    document.removeEventListener("keydown", handleGlobalKeydown);
+    console.log("Global event listener for Esc key removed");
 }
 
 function startTimer() {
