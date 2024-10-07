@@ -1,9 +1,20 @@
-chrome.runtime.onInstalled.addListener(function () {
-    chrome.contextMenus.create({
-        id: "voiceInput",
-        title: chrome.i18n.getMessage("voiceInput"),
-        contexts: ["editable"],
-    });
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.storage.sync.set(
+        {
+            apiKey: "",
+            apiEndpoint: "",
+            useAzure: false,
+        },
+        () => {
+            console.log("Initial settings saved");
+        }
+    );
+});
+
+chrome.contextMenus.create({
+    id: "voiceInput",
+    title: chrome.i18n.getMessage("voiceInput"),
+    contexts: ["editable"],
 });
 
 chrome.contextMenus.onClicked.addListener(function (info, tab) {

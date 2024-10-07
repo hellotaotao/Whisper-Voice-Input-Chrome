@@ -27,10 +27,16 @@
         "message": "设置已保存"
     },
     "microphoneError": {
-        "message": "无法访问麦克风，请检查权限设置。"
+        "message": "无法访问麦克风。请确保您已授予必要的权限。",
+        "description": "麦克风访问错误消息"
     },
     "apiKeyMissing": {
-        "message": "请在选项页面设置Whisper API Key。"
+        "message": "API密钥缺失。请在扩展选项中设置您的API密钥。",
+        "description": "API密钥缺失错误消息"
+    },
+    "azureEndpointMissing": {
+        "message": "Azure API端点缺失。请在扩展选项中设置您的Azure API端点。",
+        "description": "Azure API端点缺失错误消息"
     },
     "transcriptionError": {
         "message": "语音识别失败，请重试。"

@@ -1,45 +1,50 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Replace placeholders in HTML
-    document.title =
-        chrome.i18n.getMessage("extensionName") +
-        " - " +
-        chrome.i18n.getMessage("openOptions");
-    document.querySelector("h1").textContent =
-        chrome.i18n.getMessage("extensionName") +
-        " - " +
-        chrome.i18n.getMessage("openOptions");
-
-    // Set text content and attributes for form elements
-    const apiKeyLabel = document.getElementById("apiKeyLabel");
-    apiKeyLabel.textContent = chrome.i18n.getMessage("apiKeyLabel");
-    apiKeyLabel.setAttribute("for", "apiKey");
-
-    const languageLabel = document.getElementById("languageLabel");
-    languageLabel.textContent = chrome.i18n.getMessage("interfaceLanguage");
-    languageLabel.setAttribute("for", "language");
-
-    document.getElementById("save").textContent =
-        chrome.i18n.getMessage("save");
-
     // Load saved settings
-    chrome.storage.sync.get(["apiKey", "language"], function (items) {
-        document.getElementById("apiKey").value = items.apiKey || "";
-        document.getElementById("language").value = items.language || "zh";
-    });
+    chrome.storage.sync.get(
+        ["apiKey", "apiEndpoint", "useAzure"],
+        function (items) {
+            document.getElementById("apiKey").value = items.apiKey || "";
+            document.getElementById("apiEndpoint").value =
+                items.apiEndpoint || "";
+            document.getElementById("apiProvider").value = items.useAzure
+                ? "azure"
+                : "openai";
+            toggleAzureSettings();
+        }
+    );
 
     // Save settings
     document.getElementById("save").addEventListener("click", function () {
         var apiKey = document.getElementById("apiKey").value;
-        var language = document.getElementById("language").value;
+        var apiEndpoint = document.getElementById("apiEndpoint").value;
+        var useAzure = document.getElementById("apiProvider").value === "azure";
 
         chrome.storage.sync.set(
             {
                 apiKey: apiKey,
-                language: language,
+                apiEndpoint: apiEndpoint,
+                useAzure: useAzure,
             },
             function () {
-                alert(chrome.i18n.getMessage("settingsSaved"));
+                var status = document.getElementById("status");
+                status.textContent = "Settings saved.";
+                status.className = "success";
+                setTimeout(function () {
+                    status.textContent = "";
+                    status.className = "";
+                }, 3000);
             }
         );
     });
+
+    // Toggle Azure settings visibility
+    document
+        .getElementById("apiProvider")
+        .addEventListener("change", toggleAzureSettings);
 });
+
+function toggleAzureSettings() {
+    var apiProvider = document.getElementById("apiProvider").value;
+    var azureSettings = document.getElementById("azureSettings");
+    azureSettings.style.display = apiProvider === "azure" ? "block" : "none";
+}

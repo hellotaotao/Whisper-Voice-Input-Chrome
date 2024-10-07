@@ -118,48 +118,66 @@ function restoreFocus() {
 
 function sendAudioToWhisper() {
     if (isCanceled) {
-        // Check if the recording was canceled
-        isCanceled = false; // Reset the flag
-        return; // Exit the function without processing
+        isCanceled = false;
+        return;
     }
 
     const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
     audioChunks = [];
 
-    chrome.storage.sync.get("apiKey", function (data) {
-        if (!data.apiKey) {
-            alert(chrome.i18n.getMessage("apiKeyMissing"));
-            hideRecordingUI();
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("file", audioBlob, "audio.webm");
-        formData.append("model", "whisper-1");
-
-        fetch("https://api.openai.com/v1/audio/transcriptions", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${data.apiKey}`,
-            },
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.text) {
-                    insertTextAtCursor(data.text);
-                } else {
-                    throw new Error("No transcription received");
-                }
-            })
-            .catch((error) => {
-                console.error("Error sending audio to Whisper:", error);
-                alert(chrome.i18n.getMessage("transcriptionError"));
-            })
-            .finally(() => {
+    chrome.storage.sync.get(
+        ["apiKey", "apiEndpoint", "useAzure"],
+        function (data) {
+            if (!data.apiKey) {
+                alert(chrome.i18n.getMessage("apiKeyMissing"));
                 hideRecordingUI();
-            });
-    });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", audioBlob, "audio.webm");
+            formData.append("model", "whisper-1");
+
+            let apiUrl;
+            let headers = {
+                Authorization: `Bearer ${data.apiKey}`,
+            };
+
+            if (data.useAzure) {
+                if (!data.apiEndpoint) {
+                    alert(chrome.i18n.getMessage("azureEndpointMissing"));
+                    hideRecordingUI();
+                    return;
+                }
+                apiUrl = `${data.apiEndpoint}/openai/deployments/whisper-1/audio/transcriptions?api-version=2023-09-01-preview`;
+                headers["api-key"] = data.apiKey;
+                delete headers.Authorization;
+            } else {
+                apiUrl = "https://api.openai.com/v1/audio/transcriptions";
+            }
+
+            fetch(apiUrl, {
+                method: "POST",
+                headers: headers,
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.text) {
+                        insertTextAtCursor(data.text);
+                    } else {
+                        throw new Error("No transcription received");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error sending audio to Whisper:", error);
+                    alert(chrome.i18n.getMessage("transcriptionError"));
+                })
+                .finally(() => {
+                    hideRecordingUI();
+                });
+        }
+    );
 }
 
 function insertTextAtCursor(text) {

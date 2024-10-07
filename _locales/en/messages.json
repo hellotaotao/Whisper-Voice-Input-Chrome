@@ -30,7 +30,12 @@
         "message": "Unable to access microphone. Please check your permissions."
     },
     "apiKeyMissing": {
-        "message": "Please set the Whisper API Key in the options page."
+        "message": "API key is missing. Please set your API key in the extension options.",
+        "description": "API key missing error message"
+    },
+    "azureEndpointMissing": {
+        "message": "Azure API endpoint is missing. Please set your Azure API endpoint in the extension options.",
+        "description": "Azure API endpoint missing error message"
     },
     "transcriptionError": {
         "message": "Voice recognition failed. Please try again."
