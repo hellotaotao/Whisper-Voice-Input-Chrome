@@ -274,16 +274,22 @@ function showRecordingUI() {
     startTimer();
     isUIVisible = true;
 
-    // Add global event listener for 'Esc' key
+    // Add global event listener for 'Esc' and 'Enter' keys
     document.addEventListener("keydown", handleGlobalKeydown);
-    console.log("Global event listener for Esc key added");
+    console.log("Global event listener for Esc and Enter keys added");
 }
 
 function handleGlobalKeydown(event) {
-    if (event.key === "Escape" && isRecording) {
-        console.log("Esc key pressed, canceling recording");
-        cancelRecording();
-        event.preventDefault(); // Prevent the default Esc key behavior
+    if (isRecording) {
+        if (event.key === "Escape") {
+            console.log("Esc key pressed, canceling recording");
+            cancelRecording();
+            event.preventDefault(); // Prevent the default Esc key behavior
+        } else if (event.key === "Enter") {
+            console.log("Enter key pressed, stopping recording");
+            stopRecording();
+            event.preventDefault(); // Prevent the default Enter key behavior
+        }
     }
 }
 
@@ -316,9 +322,9 @@ function hideRecordingUI() {
         cancelAnimationFrame(animationId);
     }
     isUIVisible = false;
-    // Remove the global 'Esc' key event listener
+    // Remove the global 'Esc' and 'Enter' key event listener
     document.removeEventListener("keydown", handleGlobalKeydown);
-    console.log("Global event listener for Esc key removed");
+    console.log("Global event listener for Esc and Enter keys removed");
 }
 
 function startTimer() {
