@@ -22,5 +22,14 @@ chrome.commands.onCommand.addListener(function (command) {
                 });
             }
         );
+    } else if (command === "cancel_recording") {
+        chrome.tabs.query(
+            { active: true, currentWindow: true },
+            function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    action: "cancelRecording",
+                });
+            }
+        );
     }
 });

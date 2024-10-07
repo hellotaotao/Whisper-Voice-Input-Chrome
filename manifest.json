@@ -36,6 +36,9 @@
                 "mac": "Command+Shift+Space"
             },
             "description": "激活语音输入"
+        },
+        "cancel_recording": {
+            "description": "取消录音"
         }
     },
     "host_permissions": ["<all_urls>"]

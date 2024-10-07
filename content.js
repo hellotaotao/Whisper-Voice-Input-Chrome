@@ -11,9 +11,15 @@ let animationId;
 let activeElement;
 let cursorPosition;
 
+let escKeyListener = null;
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "startVoiceInput") {
         toggleRecording();
+    } else if (request.action === "cancelRecording") {
+        if (isRecording) {
+            cancelRecording();
+        }
     }
 });
 
@@ -78,6 +84,7 @@ function stopRecording() {
 }
 
 function cancelRecording() {
+    console.log("Canceling recording");
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
@@ -260,6 +267,16 @@ function showRecordingUI() {
     document.body.appendChild(uiContainer);
 
     startTimer();
+
+    // Add global event listener for 'Esc' key
+    escKeyListener = (event) => {
+        if (event.key === "Escape" && isRecording) {
+            console.log("Esc key pressed, canceling recording");
+            cancelRecording();
+        }
+    };
+    document.addEventListener("keydown", escKeyListener);
+    console.log("Global event listener for Esc key added");
 }
 
 function showProcessingUI() {
@@ -289,6 +306,12 @@ function hideRecordingUI() {
     }
     if (animationId) {
         cancelAnimationFrame(animationId);
+    }
+    // Remove the global 'Esc' key event listener
+    if (escKeyListener) {
+        document.removeEventListener("keydown", escKeyListener);
+        escKeyListener = null;
+        console.log("Global event listener for Esc key removed");
     }
 }
 
