@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Load saved settings
     chrome.storage.sync.get(
-        ["apiKey", "apiEndpoint", "useAzure"],
+        ["apiKey", "apiEndpoint", "useAzure", "useOpenAISession"],
         function (items) {
             document.getElementById("apiKey").value = items.apiKey || "";
             document.getElementById("apiEndpoint").value =
@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("apiProvider").value = items.useAzure
                 ? "azure"
                 : "openai";
+            document.getElementById("useOpenAISession").checked =
+                items.useOpenAISession || false;
             toggleAzureSettings();
         }
     );
@@ -18,12 +20,15 @@ document.addEventListener("DOMContentLoaded", function () {
         var apiKey = document.getElementById("apiKey").value;
         var apiEndpoint = document.getElementById("apiEndpoint").value;
         var useAzure = document.getElementById("apiProvider").value === "azure";
+        var useOpenAISession =
+            document.getElementById("useOpenAISession").checked;
 
         chrome.storage.sync.set(
             {
                 apiKey: apiKey,
                 apiEndpoint: apiEndpoint,
                 useAzure: useAzure,
+                useOpenAISession: useOpenAISession,
             },
             function () {
                 var status = document.getElementById("status");

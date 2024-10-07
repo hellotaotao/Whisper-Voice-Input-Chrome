@@ -48,5 +48,9 @@
     },
     "cancelRecording": {
         "message": "Cancel recording"
+    },
+    "openAILoginRequired": {
+        "message": "You need to be logged into ChatGPT in another tab to use this feature.",
+        "description": "Message shown when OpenAI session is required but not found"
     }
 }

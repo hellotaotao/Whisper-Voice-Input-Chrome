@@ -116,6 +116,21 @@ function restoreFocus() {
     }
 }
 
+// Add this function to check if the user is logged into ChatGPT
+async function isLoggedIntoOpenAI() {
+    try {
+        const response = await fetch(
+            "https://chat.openai.com/api/auth/session"
+        );
+        const data = await response.json();
+        return data.accessToken != null;
+    } catch (error) {
+        console.error("Error checking OpenAI login status:", error);
+        return false;
+    }
+}
+
+// Modify the sendAudioToWhisper function
 function sendAudioToWhisper() {
     if (isCanceled) {
         isCanceled = false;
@@ -126,24 +141,24 @@ function sendAudioToWhisper() {
     audioChunks = [];
 
     chrome.storage.sync.get(
-        ["apiKey", "apiEndpoint", "useAzure"],
-        function (data) {
-            if (!data.apiKey) {
-                alert(chrome.i18n.getMessage("apiKeyMissing"));
-                hideRecordingUI();
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append("file", audioBlob, "audio.webm");
-            formData.append("model", "whisper-1");
-
+        ["apiKey", "apiEndpoint", "useAzure", "useOpenAISession"],
+        async function (data) {
             let apiUrl;
-            let headers = {
-                Authorization: `Bearer ${data.apiKey}`,
-            };
+            let headers = {};
+            let useSession = data.useOpenAISession;
 
-            if (data.useAzure) {
+            if (useSession) {
+                const isLoggedIn = await isLoggedIntoOpenAI();
+                if (!isLoggedIn) {
+                    alert(chrome.i18n.getMessage("openAILoginRequired"));
+                    hideRecordingUI();
+                    return;
+                }
+                apiUrl = "https://chat.openai.com/backend-api/conversation";
+                headers = {
+                    "Content-Type": "application/json",
+                };
+            } else if (data.useAzure) {
                 if (!data.apiEndpoint) {
                     alert(chrome.i18n.getMessage("azureEndpointMissing"));
                     hideRecordingUI();
@@ -151,20 +166,44 @@ function sendAudioToWhisper() {
                 }
                 apiUrl = `${data.apiEndpoint}/openai/deployments/whisper-1/audio/transcriptions?api-version=2023-09-01-preview`;
                 headers["api-key"] = data.apiKey;
-                delete headers.Authorization;
             } else {
+                if (!data.apiKey) {
+                    alert(chrome.i18n.getMessage("apiKeyMissing"));
+                    hideRecordingUI();
+                    return;
+                }
                 apiUrl = "https://api.openai.com/v1/audio/transcriptions";
+                headers["Authorization"] = `Bearer ${data.apiKey}`;
             }
+
+            const formData = new FormData();
+            formData.append("file", audioBlob, "audio.webm");
+            formData.append("model", "whisper-1");
 
             fetch(apiUrl, {
                 method: "POST",
                 headers: headers,
-                body: formData,
+                body: useSession
+                    ? JSON.stringify({
+                          model: "whisper-1",
+                          audio: await blobToBase64(audioBlob),
+                      })
+                    : formData,
+                credentials: useSession ? "include" : "omit",
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    if (data.text) {
-                        insertTextAtCursor(data.text);
+                    if (
+                        data.text ||
+                        (useSession &&
+                            data.message &&
+                            data.message.content &&
+                            data.message.content.parts)
+                    ) {
+                        const transcription = useSession
+                            ? data.message.content.parts[0]
+                            : data.text;
+                        insertTextAtCursor(transcription);
                     } else {
                         throw new Error("No transcription received");
                     }
@@ -178,6 +217,16 @@ function sendAudioToWhisper() {
                 });
         }
     );
+}
+
+// Helper function to convert Blob to Base64
+function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
 
 function insertTextAtCursor(text) {
