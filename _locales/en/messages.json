@@ -1,0 +1,47 @@
+{
+    "extensionName": {
+        "message": "Voice Input Assistant"
+    },
+    "extensionDescription": {
+        "message": "Chrome extension for voice input using OpenAI's Whisper API"
+    },
+    "voiceInput": {
+        "message": "Voice Input"
+    },
+    "openOptions": {
+        "message": "Open Options"
+    },
+    "useShortcut": {
+        "message": "Use shortcut Ctrl+Shift+Space or right-click menu to activate voice input."
+    },
+    "apiKeyLabel": {
+        "message": "Whisper API Key:"
+    },
+    "interfaceLanguage": {
+        "message": "Interface Language:"
+    },
+    "save": {
+        "message": "Save"
+    },
+    "settingsSaved": {
+        "message": "Settings saved"
+    },
+    "microphoneError": {
+        "message": "Unable to access microphone. Please check your permissions."
+    },
+    "apiKeyMissing": {
+        "message": "Please set the Whisper API Key in the options page."
+    },
+    "transcriptionError": {
+        "message": "Voice recognition failed. Please try again."
+    },
+    "generalError": {
+        "message": "An error occurred. Please refresh the page and try again."
+    },
+    "activateVoiceInput": {
+        "message": "Activate voice input"
+    },
+    "cancelRecording": {
+        "message": "Cancel recording"
+    }
+}

@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(function () {
     chrome.contextMenus.create({
         id: "voiceInput",
-        title: "语音输入",
+        title: chrome.i18n.getMessage("voiceInput"),
         contexts: ["editable"],
     });
 });

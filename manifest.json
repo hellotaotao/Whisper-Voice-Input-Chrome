@@ -1,8 +1,9 @@
 {
     "manifest_version": 3,
-    "name": "语音输入助手",
+    "name": "__MSG_extensionName__",
     "version": "1.0",
-    "description": "使用OpenAI的Whisper API进行语音识别的Chrome插件",
+    "description": "__MSG_extensionDescription__",
+    "default_locale": "en",
     "permissions": ["activeTab", "storage", "contextMenus"],
     "action": {
         "default_popup": "popup.html",
@@ -35,10 +36,10 @@
                 "default": "Ctrl+Shift+Space",
                 "mac": "Command+Shift+Space"
             },
-            "description": "激活语音输入"
+            "description": "__MSG_activateVoiceInput__"
         },
         "cancel_recording": {
-            "description": "取消录音"
+            "description": "__MSG_cancelRecording__"
         }
     },
     "host_permissions": ["<all_urls>"]

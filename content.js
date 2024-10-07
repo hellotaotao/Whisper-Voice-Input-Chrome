@@ -72,7 +72,7 @@ function startRecording() {
         })
         .catch((error) => {
             console.error("Error accessing microphone:", error);
-            alert("无法访问麦克风，请检查权限设置。");
+            alert(chrome.i18n.getMessage("microphoneError"));
         });
 }
 
@@ -128,7 +128,7 @@ function sendAudioToWhisper() {
 
     chrome.storage.sync.get("apiKey", function (data) {
         if (!data.apiKey) {
-            alert("请在选项页面设置Whisper API Key。");
+            alert(chrome.i18n.getMessage("apiKeyMissing"));
             hideRecordingUI();
             return;
         }
@@ -154,7 +154,7 @@ function sendAudioToWhisper() {
             })
             .catch((error) => {
                 console.error("Error sending audio to Whisper:", error);
-                alert("语音识别失败，请重试。");
+                alert(chrome.i18n.getMessage("transcriptionError"));
             })
             .finally(() => {
                 hideRecordingUI();
@@ -394,6 +394,6 @@ function visualizeAudio() {
 // 初始化错误处理
 window.onerror = function (message, source, lineno, colno, error) {
     console.error("An error occurred:", error);
-    alert("发生错误，请刷新页面重试。");
+    alert(chrome.i18n.getMessage("generalError"));
     return true;
 };

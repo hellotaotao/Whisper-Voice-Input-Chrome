@@ -1,0 +1,47 @@
+{
+    "extensionName": {
+        "message": "语音输入助手"
+    },
+    "extensionDescription": {
+        "message": "使用OpenAI的Whisper API进行语音识别的Chrome插件"
+    },
+    "voiceInput": {
+        "message": "语音输入"
+    },
+    "openOptions": {
+        "message": "打开选项"
+    },
+    "useShortcut": {
+        "message": "使用快捷键 Ctrl+Shift+Space 或右键菜单激活语音输入。"
+    },
+    "apiKeyLabel": {
+        "message": "Whisper API Key:"
+    },
+    "interfaceLanguage": {
+        "message": "界面语言:"
+    },
+    "save": {
+        "message": "保存"
+    },
+    "settingsSaved": {
+        "message": "设置已保存"
+    },
+    "microphoneError": {
+        "message": "无法访问麦克风，请检查权限设置。"
+    },
+    "apiKeyMissing": {
+        "message": "请在选项页面设置Whisper API Key。"
+    },
+    "transcriptionError": {
+        "message": "语音识别失败，请重试。"
+    },
+    "generalError": {
+        "message": "发生错误，请刷新页面重试。"
+    },
+    "activateVoiceInput": {
+        "message": "激活语音输入"
+    },
+    "cancelRecording": {
+        "message": "取消录音"
+    }
+}

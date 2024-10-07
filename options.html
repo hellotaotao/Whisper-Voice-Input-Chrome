@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>语音输入助手 - 选项</title>
+        <title>Voice Input Assistant - Options</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -23,17 +23,17 @@
         </style>
     </head>
     <body>
-        <h1>语音输入助手 - 选项</h1>
-        <label for="apiKey">Whisper API Key:</label>
-        <input type="text" id="apiKey" />
+        <h1>Voice Input Assistant - Options</h1>
+        <label for="apiKey" id="apiKeyLabel">Whisper API Key:</label>
+        <input type="text" id="apiKey" aria-label="Whisper API Key" />
 
-        <label for="language">界面语言:</label>
-        <select id="language">
+        <label for="language" id="languageLabel">Interface Language:</label>
+        <select id="language" aria-label="Interface Language">
             <option value="zh">中文</option>
             <option value="en">English</option>
         </select>
 
-        <button id="save">保存</button>
+        <button id="save" aria-label="Save Settings">Save</button>
 
         <script src="options.js"></script>
     </body>
