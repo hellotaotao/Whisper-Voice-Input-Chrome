@@ -249,7 +249,7 @@ function showRecordingUI() {
     waveformCanvas.width = 200;
     waveformCanvas.height = 40;
     waveformCanvas.style.margin = "0 10px";
-    waveformCtx = waveformCanvas.getContext("2d");
+    waveformCtx = waveformCanvas.getContext("2d",  { willReadFrequently: true });
 
     const timer = document.createElement("span");
     timer.id = "recording-timer";
@@ -378,7 +378,8 @@ function visualizeAudio() {
             2,
             0,
             waveformCanvas.width - 2,
-            waveformCanvas.height
+            waveformCanvas.height,
+            { willReadFrequently: true }
         );
         waveformCtx.putImageData(imageData, 0, 0);
 
