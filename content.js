@@ -32,7 +32,24 @@ function toggleRecording() {
     }
 }
 
-function startRecording() {
+function checkApiKey() {
+    return new Promise((resolve) => {
+        chrome.storage.sync.get(['apiKey'], function(result) {
+            if (!result.apiKey) {
+                alert(chrome.i18n.getMessage("apiKeyMissing"));
+                chrome.runtime.openOptionsPage();
+                return resolve(false);
+            }
+            resolve(true);
+        });
+    });
+}
+
+async function startRecording() {
+    const hasApiKey = await checkApiKey();
+    if (!hasApiKey) {
+        return; // Exit if no API key
+    }
     // Save the current active element and cursor position
     activeElement = document.activeElement;
     if (
@@ -126,14 +143,8 @@ function sendAudioToWhisper() {
     audioChunks = [];
 
     chrome.storage.sync.get(
-        ["apiKey", "apiEndpoint", "useAzure"],
+        ["apiKey", "apiEndpoint", "apiProvider"],
         function (data) {
-            if (!data.apiKey) {
-                alert(chrome.i18n.getMessage("apiKeyMissing"));
-                hideRecordingUI();
-                return;
-            }
-
             const formData = new FormData();
             formData.append("file", audioBlob, "audio.webm");
             formData.append("model", "whisper-1");
@@ -143,7 +154,7 @@ function sendAudioToWhisper() {
                 Authorization: `Bearer ${data.apiKey}`,
             };
 
-            if (data.useAzure) {
+            if (data.apiProvider === 'azure') {
                 if (!data.apiEndpoint) {
                     alert(chrome.i18n.getMessage("azureEndpointMissing"));
                     hideRecordingUI();
