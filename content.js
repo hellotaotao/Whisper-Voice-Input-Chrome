@@ -34,7 +34,7 @@ function toggleRecording() {
 
 function checkApiKey() {
     return new Promise((resolve) => {
-        chrome.storage.sync.get(['apiKey'], function(result) {
+        chrome.storage.sync.get(["apiKey"], function (result) {
             if (!result.apiKey) {
                 alert(chrome.i18n.getMessage("apiKeyMissing"));
                 chrome.runtime.openOptionsPage();
@@ -143,7 +143,7 @@ function sendAudioToWhisper() {
     audioChunks = [];
 
     chrome.storage.sync.get(
-        ["apiKey", "apiEndpoint", "apiProvider"],
+        ["apiKey", "apiEndpoint", "useAzure"],
         function (data) {
             const formData = new FormData();
             formData.append("file", audioBlob, "audio.webm");
@@ -154,13 +154,13 @@ function sendAudioToWhisper() {
                 Authorization: `Bearer ${data.apiKey}`,
             };
 
-            if (data.apiProvider === 'azure') {
+            if (data.useAzure) {
                 if (!data.apiEndpoint) {
                     alert(chrome.i18n.getMessage("azureEndpointMissing"));
                     hideRecordingUI();
                     return;
                 }
-                apiUrl = `${data.apiEndpoint}/openai/deployments/whisper-1/audio/transcriptions?api-version=2023-09-01-preview`;
+                apiUrl = `${data.apiEndpoint}`;
                 headers["api-key"] = data.apiKey;
                 delete headers.Authorization;
             } else {
@@ -260,7 +260,7 @@ function showRecordingUI() {
     waveformCanvas.width = 200;
     waveformCanvas.height = 40;
     waveformCanvas.style.margin = "0 10px";
-    waveformCtx = waveformCanvas.getContext("2d",  { willReadFrequently: true });
+    waveformCtx = waveformCanvas.getContext("2d", { willReadFrequently: true });
 
     const timer = document.createElement("span");
     timer.id = "recording-timer";
