@@ -65,6 +65,7 @@ async function startRecording() {
     navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
+            audioStream = stream;
             mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.ondataavailable = (event) => {
                 audioChunks.push(event.data);
@@ -99,6 +100,18 @@ function stopRecording() {
         isRecording = false;
         showProcessingUI();
     }
+
+    // Stop all audio tracks
+    if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        audioStream = null;
+    }
+    
+    // Stop the waveform animation
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
 }
 
 function cancelRecording() {
@@ -109,6 +122,19 @@ function cancelRecording() {
         isCanceled = true; // Set the canceled flag
         audioChunks = []; // Clear the recorded audio
     }
+
+    // Stop all audio tracks
+    if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        audioStream = null;
+    }
+    
+    // Stop the waveform animation
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    
     hideRecordingUI();
     restoreFocus();
 }
