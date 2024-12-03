@@ -1,50 +1,63 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function() {
     // Load saved settings
-    chrome.storage.sync.get(
-        ["apiKey", "apiEndpoint", "useAzure"],
-        function (items) {
-            document.getElementById("apiKey").value = items.apiKey || "";
-            document.getElementById("apiEndpoint").value =
-                items.apiEndpoint || "";
-            document.getElementById("apiProvider").value = items.useAzure
-                ? "azure"
-                : "openai";
-            toggleAzureSettings();
-        }
-    );
-
-    // Save settings
-    document.getElementById("save").addEventListener("click", function () {
-        var apiKey = document.getElementById("apiKey").value;
-        var apiEndpoint = document.getElementById("apiEndpoint").value;
-        var useAzure = document.getElementById("apiProvider").value === "azure";
-
-        chrome.storage.sync.set(
-            {
-                apiKey: apiKey,
-                apiEndpoint: apiEndpoint,
-                useAzure: useAzure,
-            },
-            function () {
-                var status = document.getElementById("status");
-                status.textContent = "Settings saved.";
-                status.className = "success";
-                setTimeout(function () {
-                    status.textContent = "";
-                    status.className = "";
-                }, 3000);
-            }
-        );
+    chrome.storage.sync.get({
+        'apiProvider': 'openai',
+        'openaiApiKey': '',
+        'azureApiKey': '',
+        'azureEndpoint': ''
+    }, function(items) {
+        // Set the radio button
+        document.querySelector(`input[name="apiProvider"][value="${items.apiProvider}"]`).checked = true;
+        
+        // Set the saved values
+        document.getElementById('openaiApiKey').value = items.openaiApiKey;
+        document.getElementById('azureApiKey').value = items.azureApiKey;
+        document.getElementById('azureEndpoint').value = items.azureEndpoint;
+        
+        // Show the correct settings section
+        toggleSettings(items.apiProvider);
     });
 
-    // Toggle Azure settings visibility
-    document
-        .getElementById("apiProvider")
-        .addEventListener("change", toggleAzureSettings);
+    // Add change event listener for radio buttons
+    document.querySelectorAll('input[name="apiProvider"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            toggleSettings(e.target.value);
+        });
+    });
+
+    // Save settings
+    document.getElementById('save').addEventListener('click', function() {
+        const apiProvider = document.querySelector('input[name="apiProvider"]:checked').value;
+        const openaiApiKey = document.getElementById('openaiApiKey').value;
+        const azureApiKey = document.getElementById('azureApiKey').value;
+        const azureEndpoint = document.getElementById('azureEndpoint').value;
+
+        chrome.storage.sync.set({
+            apiProvider: apiProvider,
+            openaiApiKey: openaiApiKey,
+            azureApiKey: azureApiKey,
+            azureEndpoint: azureEndpoint
+        }, function() {
+            const status = document.getElementById('status');
+            status.textContent = chrome.i18n.getMessage('settingsSaved');
+            status.className = 'success';
+            setTimeout(function() {
+                status.textContent = '';
+                status.className = '';
+            }, 3000);
+        });
+    });
 });
 
-function toggleAzureSettings() {
-    var apiProvider = document.getElementById("apiProvider").value;
-    var azureSettings = document.getElementById("azureSettings");
-    azureSettings.style.display = apiProvider === "azure" ? "block" : "none";
+function toggleSettings(provider) {
+    const openaiSettings = document.getElementById('openaiSettings');
+    const azureSettings = document.getElementById('azureSettings');
+    
+    if (provider === 'azure') {
+        openaiSettings.style.display = 'none';
+        azureSettings.style.display = 'block';
+    } else {
+        openaiSettings.style.display = 'block';
+        azureSettings.style.display = 'none';
+    }
 }

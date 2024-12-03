@@ -34,11 +34,19 @@ function toggleRecording() {
 
 function checkApiKey() {
     return new Promise((resolve) => {
-        chrome.storage.sync.get(["apiKey"], function (result) {
-            if (!result.apiKey) {
-                alert(chrome.i18n.getMessage("apiKeyMissing"));
-                chrome.runtime.openOptionsPage();
-                return resolve(false);
+        chrome.storage.sync.get(['apiProvider', 'openaiApiKey', 'azureApiKey', 'azureEndpoint'], function(result) {
+            if (result.apiProvider === 'azure') {
+                if (!result.azureApiKey || !result.azureEndpoint) {
+                    alert(chrome.i18n.getMessage("azureEndpointMissing"));
+                    chrome.runtime.openOptionsPage();
+                    return resolve(false);
+                }
+            } else {
+                if (!result.openaiApiKey) {
+                    alert(chrome.i18n.getMessage("apiKeyMissing"));
+                    chrome.runtime.openOptionsPage();
+                    return resolve(false);
+                }
             }
             resolve(true);
         });
@@ -169,28 +177,32 @@ function sendAudioToWhisper() {
     audioChunks = [];
 
     chrome.storage.sync.get(
-        ["apiKey", "apiEndpoint", "useAzure"],
+        ['apiProvider', 'openaiApiKey', 'azureApiKey', 'azureEndpoint'],
         function (data) {
             const formData = new FormData();
             formData.append("file", audioBlob, "audio.webm");
             formData.append("model", "whisper-1");
 
             let apiUrl;
-            let headers = {
-                Authorization: `Bearer ${data.apiKey}`,
-            };
+            let headers = {};
 
-            if (data.useAzure) {
-                if (!data.apiEndpoint) {
+            if (data.apiProvider === 'azure') {
+                if (!data.azureApiKey || !data.azureEndpoint) {
                     alert(chrome.i18n.getMessage("azureEndpointMissing"));
                     hideRecordingUI();
                     return;
                 }
-                apiUrl = `${data.apiEndpoint}`;
-                headers["api-key"] = data.apiKey;
-                delete headers.Authorization;
+                apiUrl = `${data.azureEndpoint}`;
+                headers["api-key"] = data.azureApiKey;
             } else {
+                // OpenAI
+                if (!data.openaiApiKey) {
+                    alert(chrome.i18n.getMessage("apiKeyMissing"));
+                    hideRecordingUI();
+                    return;
+                }
                 apiUrl = "https://api.openai.com/v1/audio/transcriptions";
+                headers["Authorization"] = `Bearer ${data.openaiApiKey}`;
             }
 
             fetch(apiUrl, {
