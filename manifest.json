@@ -4,7 +4,7 @@
     "version": "1.0",
     "description": "__MSG_extensionDescription__",
     "default_locale": "en",
-    "permissions": ["activeTab", "storage", "contextMenus"],
+    "permissions": ["activeTab", "storage", "contextMenus", "audioCapture"],
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
@@ -42,5 +42,6 @@
             "description": "__MSG_cancelRecording__"
         }
     },
-    "host_permissions": ["<all_urls>"]
+    "host_permissions": ["<all_urls>"],
+    "optional_permissions": ["audioCapture"]
 }
