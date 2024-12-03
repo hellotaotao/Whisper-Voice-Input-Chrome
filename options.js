@@ -47,6 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 3000);
         });
     });
+
+    // Add keyboard shortcut for save
+    document.addEventListener('keydown', function(e) {
+        // Check for Ctrl+S or Cmd+S (on Mac)
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault(); // Prevent the browser's default save dialog
+            document.getElementById('save').click(); // Trigger the save button click
+        }
+    });
 });
 
 function toggleSettings(provider) {
