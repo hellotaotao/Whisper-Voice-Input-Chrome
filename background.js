@@ -13,12 +13,13 @@ chrome.runtime.onInstalled.addListener(() => {
             console.log("Settings initialized or updated");
         });
     });
-});
-
-chrome.contextMenus.create({
-    id: "voiceInput",
-    title: chrome.i18n.getMessage("voiceInput"),
-    contexts: ["editable"],
+    
+    // Create context menu item only once during installation
+    chrome.contextMenus.create({
+        id: "voiceInput",
+        title: chrome.i18n.getMessage("voiceInput"),
+        contexts: ["editable"],
+    });
 });
 
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
