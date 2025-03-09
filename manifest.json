@@ -4,7 +4,7 @@
     "version": "1.0",
     "description": "__MSG_extensionDescription__",
     "default_locale": "en",
-    "permissions": ["activeTab", "storage", "contextMenus", "audioCapture"],
+    "permissions": ["activeTab", "storage", "contextMenus"],
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
@@ -43,5 +43,5 @@
         }
     },
     "host_permissions": ["<all_urls>"],
-    "optional_permissions": ["audioCapture"]
+    "optional_permissions": []
 }
