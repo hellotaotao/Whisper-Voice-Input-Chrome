@@ -1,0 +1,101 @@
+/* 语音输入按钮容器样式 */
+.voice-input-container {
+    position: relative !important;
+    display: inline-block !important;
+    width: auto;
+    z-index: 10001 !important;
+}
+
+.voice-input-container-div {
+    width: 100%;
+}
+
+/* 语音输入按钮样式 */
+.voice-input-button {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    padding: 5px !important;
+    opacity: 0.7 !important;
+    transition: opacity 0.2s !important;
+    z-index: 10002 !important;
+    pointer-events: auto !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.voice-input-button:hover {
+    opacity: 1 !important;
+}
+
+/* 录音UI容器 */
+#voice-input-ui {
+    position: fixed;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    z-index: 9999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* 取消按钮 */
+.cancel-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* 波形图 */
+#waveform {
+    margin: 0 10px;
+}
+
+/* 录音计时器 */
+#recording-timer {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    margin-right: 10px;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* 完成按钮 */
+#done-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* 加载动画 */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}

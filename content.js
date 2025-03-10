@@ -21,14 +21,9 @@ function addVoiceInputButton(element) {
         return;
     }
 
-    // Create a relatively positioned container for the element
+    // Create a container for the element with appropriate CSS class
     const container = document.createElement('div');
-    container.setAttribute('style', `
-        position: relative !important;
-        display: inline-block !important;
-        width: ${element.tagName === 'DIV' ? '100%' : 'auto'};
-        z-index: 10001 !important;
-    `);
+    container.className = element.tagName === 'DIV' ? 'voice-input-container voice-input-container-div' : 'voice-input-container';
 
     // Wrap the original element in the container
     const parent = element.parentNode;
@@ -39,25 +34,9 @@ function addVoiceInputButton(element) {
 
     const button = document.createElement('button');
     button.innerHTML = '🎤';
-    button.setAttribute('style', `
-        position: absolute !important;
-        top: 5px !important;
-        right: 5px !important;
-        background: none !important;
-        border: none !important;
-        font-size: 16px !important;
-        cursor: pointer !important;
-        padding: 5px !important;
-        opacity: 0.7 !important;
-        transition: opacity 0.2s !important;
-        z-index: 10002 !important;
-        pointer-events: auto !important;
-        display: block !important;
-        visibility: visible !important;
-    `);
+    button.className = 'voice-input-button';
 
-    button.addEventListener('mouseover', () => button.style.setProperty('opacity', '1', 'important'));
-    button.addEventListener('mouseout', () => button.style.setProperty('opacity', '0.7', 'important'));
+    // Hover effects are now handled by CSS
     button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -79,16 +58,10 @@ function addVoiceInputButton(element) {
     // Ensure the button is visible
     setTimeout(() => {
         if (button && button.parentNode) {
-            // Use setProperty method to set styles, ensuring !important takes effect
-            button.style.setProperty('display', 'block', 'important');
-            button.style.setProperty('visibility', 'visible', 'important');
-            button.style.setProperty('opacity', '0.7', 'important');
-            button.style.setProperty('z-index', '10002', 'important');
-            
-            // Force redraw
-            button.style.setProperty('display', 'none', 'important');
+            // Force redraw to ensure visibility
+            button.style.display = 'none';
             button.offsetHeight; // Trigger redraw
-            button.style.setProperty('display', 'block', 'important');
+            button.style.display = '';
         }
     }, 100);
 }
@@ -163,10 +136,8 @@ setInterval(function() {
         const container = element.parentElement;
         if (container) {
             const button = container.querySelector('button');
-            if (button) {
-                button.style.display = 'block';
-                button.style.visibility = 'visible';
-                button.style.zIndex = '10002';
+            if (button && !button.classList.contains('voice-input-button')) {
+                button.className = 'voice-input-button';
             }
         }
     });
@@ -412,17 +383,6 @@ function insertTextAtCursor(text) {
 function showRecordingUI() {
     const uiContainer = document.createElement("div");
     uiContainer.id = "voice-input-ui";
-    uiContainer.style.cssText = `
-    position: fixed;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-    padding: 5px 12px;
-    display: flex;
-    align-items: center;
-    z-index: 9999;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  `;
 
     // Position the UI near the active element
     const rect = activeElement.getBoundingClientRect();
@@ -431,51 +391,22 @@ function showRecordingUI() {
 
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "×";
-    cancelButton.style.cssText = `
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-right: 10px;
-  `;
+    cancelButton.className = "cancel-button";
     cancelButton.onclick = cancelRecording;
 
     waveformCanvas = document.createElement("canvas");
     waveformCanvas.id = "waveform";
     waveformCanvas.width = 200;
     waveformCanvas.height = 40;
-    waveformCanvas.style.margin = "0 10px";
     waveformCtx = waveformCanvas.getContext("2d", { willReadFrequently: true });
 
     const timer = document.createElement("span");
     timer.id = "recording-timer";
     timer.textContent = "00:00";
-    timer.style.cssText = `
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    margin-right: 10px;
-    min-width: 40px;
-    text-align: center;
-  `;
 
     const doneButton = document.createElement("button");
     doneButton.id = "done-button";
     doneButton.textContent = "✔";
-    doneButton.style.cssText = `
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    cursor: pointer;
-  `;
     doneButton.onclick = stopRecording;
 
     uiContainer.appendChild(cancelButton);
@@ -511,21 +442,10 @@ function handleGlobalKeydown(event) {
 function showProcessingUI() {
     const doneButton = document.getElementById("done-button");
     if (doneButton) {
-        doneButton.innerHTML = `
-        <div style="width: 16px; height: 16px; border: 2px solid #ffffff; border-top: 2px solid #4CAF50; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-        `;
+        doneButton.innerHTML = '<div class="loading-spinner"></div>';
         doneButton.style.cursor = "default";
         doneButton.onclick = null;
     }
-
-    const style = document.createElement("style");
-    style.textContent = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-    document.head.appendChild(style);
 }
 
 function hideRecordingUI() {
