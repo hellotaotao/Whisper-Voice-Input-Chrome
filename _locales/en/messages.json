@@ -12,7 +12,7 @@
         "message": "Open Options"
     },
     "useShortcut": {
-        "message": "Use shortcut Ctrl+Shift+Space or right-click menu to activate voice input."
+        "message": "Use shortcut Ctrl+Shift+D or right-click menu to activate voice input."
     },
     "apiKeyLabel": {
         "message": "Whisper API Key:"
@@ -43,10 +43,7 @@
     "generalError": {
         "message": "An error occurred. Please refresh the page and try again."
     },
-    "activateVoiceInput": {
-        "message": "Activate voice input"
-    },
-    "cancelRecording": {
-        "message": "Cancel recording"
+    "startVoiceInput": {
+        "message": "Start voice input"
     }
 }

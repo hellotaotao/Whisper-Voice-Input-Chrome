@@ -31,15 +31,12 @@
         "128": "images/icon128.png"
     },
     "commands": {
-        "_execute_action": {
+        "start_recording": {
             "suggested_key": {
-                "default": "Ctrl+Shift+Space",
-                "mac": "Command+Shift+Space"
+                "default": "Ctrl+Shift+D",
+                "mac": "Command+Shift+D"
             },
-            "description": "__MSG_activateVoiceInput__"
-        },
-        "cancel_recording": {
-            "description": "__MSG_cancelRecording__"
+            "description": "__MSG_startVoiceInput__"
         }
     },
     "host_permissions": ["<all_urls>"],

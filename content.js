@@ -175,10 +175,6 @@ setInterval(function() {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "startVoiceInput") {
         toggleRecording();
-    } else if (request.action === "cancelRecording") {
-        if (isRecording) {
-            cancelRecording();
-        }
     }
 });
 
@@ -281,7 +277,6 @@ function stopRecording() {
 }
 
 function cancelRecording() {
-    console.log("Canceling recording");
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
@@ -501,17 +496,14 @@ function showRecordingUI() {
 
     // Add global event listener for 'Esc' and 'Enter' keys
     document.addEventListener("keydown", handleGlobalKeydown);
-    console.log("Global event listener for Esc and Enter keys added");
 }
 
 function handleGlobalKeydown(event) {
     if (isRecording) {
         if (event.key === "Escape") {
-            console.log("Esc key pressed, canceling recording");
             cancelRecording();
             event.preventDefault(); // Prevent the default Esc key behavior
         } else if (event.key === "Enter") {
-            console.log("Enter key pressed, stopping recording");
             stopRecording();
             event.preventDefault(); // Prevent the default Enter key behavior
         }
@@ -549,7 +541,6 @@ function hideRecordingUI() {
     isUIVisible = false;
     // Remove the global 'Esc' and 'Enter' key event listener
     document.removeEventListener("keydown", handleGlobalKeydown);
-    console.log("Global event listener for Esc and Enter keys removed");
 }
 
 function startTimer() {

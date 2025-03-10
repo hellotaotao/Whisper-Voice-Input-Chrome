@@ -12,7 +12,7 @@
         "message": "打开选项"
     },
     "useShortcut": {
-        "message": "使用快捷键 Ctrl+Shift+Space 或右键菜单激活语音输入。"
+        "message": "使用快捷键 Ctrl+Shift+D 或右键菜单激活语音输入。"
     },
     "apiKeyLabel": {
         "message": "Whisper API Key:"
@@ -44,10 +44,7 @@
     "generalError": {
         "message": "发生错误，请刷新页面重试。"
     },
-    "activateVoiceInput": {
-        "message": "激活语音输入"
-    },
-    "cancelRecording": {
-        "message": "取消录音"
+    "startVoiceInput": {
+        "message": "开始语音输入"
     }
 }
