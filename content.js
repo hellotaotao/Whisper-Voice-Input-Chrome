@@ -192,13 +192,11 @@ function checkApiKey() {
             if (result.apiProvider === 'azure') {
                 if (!result.azureApiKey || !result.azureEndpoint) {
                     alert(chrome.i18n.getMessage("azureEndpointMissing"));
-                    chrome.runtime.openOptionsPage();
                     return resolve(false);
                 }
             } else {
                 if (!result.openaiApiKey) {
                     alert(chrome.i18n.getMessage("apiKeyMissing"));
-                    chrome.runtime.openOptionsPage();
                     return resolve(false);
                 }
             }

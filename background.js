@@ -1,11 +1,13 @@
 chrome.runtime.onInstalled.addListener(() => {
     // Load existing settings
-    chrome.storage.sync.get(["apiKey", "apiEndpoint", "useAzure"], (items) => {
+    chrome.storage.sync.get(["apiProvider", "openaiApiKey", "azureApiKey", "azureEndpoint", "enableAllInputs"], (items) => {
         // Prepare default settings
         const defaultSettings = {
-            apiKey: items.apiKey || "",
-            apiEndpoint: items.apiEndpoint || "",
-            useAzure: items.useAzure || false,
+            apiProvider: items.apiProvider || "openai",
+            openaiApiKey: items.openaiApiKey || "",
+            azureApiKey: items.azureApiKey || "",
+            azureEndpoint: items.azureEndpoint || "",
+            enableAllInputs: items.enableAllInputs || false,
         };
 
         // Save settings, preserving existing values
@@ -19,6 +21,24 @@ chrome.runtime.onInstalled.addListener(() => {
         id: "voiceInput",
         title: chrome.i18n.getMessage("voiceInput"),
         contexts: ["editable"],
+    });
+    
+    // Migrate old settings to new format if needed
+    chrome.storage.sync.get(["apiKey", "apiEndpoint", "useAzure"], (oldItems) => {
+        if (oldItems.apiKey || oldItems.apiEndpoint || oldItems.useAzure !== undefined) {
+            const migratedSettings = {
+                apiProvider: oldItems.useAzure ? "azure" : "openai",
+                openaiApiKey: !oldItems.useAzure ? oldItems.apiKey || "" : "",
+                azureApiKey: oldItems.useAzure ? oldItems.apiKey || "" : "",
+                azureEndpoint: oldItems.useAzure ? oldItems.apiEndpoint || "" : ""
+            };
+            
+            chrome.storage.sync.set(migratedSettings, () => {
+                console.log("Old settings migrated to new format");
+                // Clear old settings
+                chrome.storage.sync.remove(["apiKey", "apiEndpoint", "useAzure"]);
+            });
+        }
     });
 });
 
