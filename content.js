@@ -14,6 +14,164 @@ let cursorPosition;
 let escKeyListener = null;
 let isUIVisible = false;
 
+// Add voice input button to editable elements
+function addVoiceInputButton(element) {
+    // Check if the element already has a voice input button
+    if (element.getAttribute('data-has-voice-input') === 'true') {
+        return;
+    }
+
+    // Create a relatively positioned container for the element
+    const container = document.createElement('div');
+    container.setAttribute('style', `
+        position: relative !important;
+        display: inline-block !important;
+        width: ${element.tagName === 'DIV' ? '100%' : 'auto'};
+        z-index: 10001 !important;
+    `);
+
+    // Wrap the original element in the container
+    const parent = element.parentNode;
+    if (parent) {
+        parent.insertBefore(container, element);
+        container.appendChild(element);
+    }
+
+    const button = document.createElement('button');
+    button.innerHTML = '🎤';
+    button.setAttribute('style', `
+        position: absolute !important;
+        top: 5px !important;
+        right: 5px !important;
+        background: none !important;
+        border: none !important;
+        font-size: 16px !important;
+        cursor: pointer !important;
+        padding: 5px !important;
+        opacity: 0.7 !important;
+        transition: opacity 0.2s !important;
+        z-index: 10002 !important;
+        pointer-events: auto !important;
+        display: block !important;
+        visibility: visible !important;
+    `);
+
+    button.addEventListener('mouseover', () => button.style.setProperty('opacity', '1', 'important'));
+    button.addEventListener('mouseout', () => button.style.setProperty('opacity', '0.7', 'important'));
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeElement = element;
+        if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+            cursorPosition = element.selectionStart;
+        } else if (element.isContentEditable) {
+            const selection = window.getSelection();
+            cursorPosition = selection.getRangeAt(0).startOffset;
+        }
+        startRecording();
+    });
+
+    container.appendChild(button);
+
+    // Mark the element as having a voice input button
+    element.setAttribute('data-has-voice-input', 'true');
+
+    // Ensure the button is visible
+    setTimeout(() => {
+        if (button && button.parentNode) {
+            // Use setProperty method to set styles, ensuring !important takes effect
+            button.style.setProperty('display', 'block', 'important');
+            button.style.setProperty('visibility', 'visible', 'important');
+            button.style.setProperty('opacity', '0.7', 'important');
+            button.style.setProperty('z-index', '10002', 'important');
+            
+            // Force redraw
+            button.style.setProperty('display', 'none', 'important');
+            button.offsetHeight; // Trigger redraw
+            button.style.setProperty('display', 'block', 'important');
+        }
+    }, 100);
+}
+
+// Initialize voice input buttons
+function initVoiceInputButtons() {
+    chrome.storage.sync.get(['enableAllInputs'], function(result) {
+        // First clean up existing buttons and observers
+        document.querySelectorAll('[data-has-voice-input="true"]').forEach(element => {
+            const container = element.parentElement;
+            if (container && container.parentElement) {
+                container.parentElement.replaceChild(element, container);
+            }
+            element.removeAttribute('data-has-voice-input');
+        });
+
+        if (result.enableAllInputs) {
+            // Add voice input buttons to all multi-line input boxes
+            document.querySelectorAll('textarea').forEach(addVoiceInputButton);
+            
+            // Add voice input buttons to all text input boxes
+            document.querySelectorAll('input[type="text"], input:not([type])').forEach(addVoiceInputButton);
+
+            // Add voice input buttons to all editable divs
+            document.querySelectorAll('div[contenteditable="true"]').forEach(addVoiceInputButton);
+
+            // Create a MutationObserver to monitor newly added elements
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) { // Element node
+                            if (node.tagName === 'TEXTAREA' || 
+                                (node.tagName === 'DIV' && node.contentEditable === 'true') ||
+                                (node.tagName === 'INPUT' && (node.type === 'text' || !node.type))) {
+                                addVoiceInputButton(node);
+                            }
+                            // Check child elements of the newly added node
+                            node.querySelectorAll('textarea, div[contenteditable="true"], input[type="text"], input:not([type])')
+                                .forEach(addVoiceInputButton);
+                        }
+                    });
+                });
+            });
+
+            // Start observing document changes
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            // Save observer instance for later disconnection
+            window.voiceInputObserver = observer;
+        } else {
+            // Disconnect observer when disabled
+            if (window.voiceInputObserver) {
+                window.voiceInputObserver.disconnect();
+            }
+        }
+    });
+}
+
+// Initialize voice input buttons after the page has loaded
+document.addEventListener('DOMContentLoaded', initVoiceInputButtons);
+
+// Ensure initialization is also performed once the page is fully loaded, to handle delayed loaded elements
+window.addEventListener('load', function() {
+    setTimeout(initVoiceInputButtons, 500);
+});
+
+// Add periodic checks to ensure buttons are displayed correctly
+setInterval(function() {
+    document.querySelectorAll('[data-has-voice-input="true"]').forEach(element => {
+        const container = element.parentElement;
+        if (container) {
+            const button = container.querySelector('button');
+            if (button) {
+                button.style.display = 'block';
+                button.style.visibility = 'visible';
+                button.style.zIndex = '10002';
+            }
+        }
+    });
+}, 2000);
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "startVoiceInput") {
         toggleRecording();

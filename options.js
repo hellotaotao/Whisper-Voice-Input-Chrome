@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'apiProvider': 'openai',
         'openaiApiKey': '',
         'azureApiKey': '',
-        'azureEndpoint': ''
+        'azureEndpoint': '',
+        'enableAllInputs': false
     }, function(items) {
         // Set the radio button
         document.querySelector(`input[name="apiProvider"][value="${items.apiProvider}"]`).checked = true;
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('openaiApiKey').value = items.openaiApiKey;
         document.getElementById('azureApiKey').value = items.azureApiKey;
         document.getElementById('azureEndpoint').value = items.azureEndpoint;
+        document.getElementById('enableAllInputs').checked = items.enableAllInputs;
         
         // Show the correct settings section
         toggleSettings(items.apiProvider);
@@ -31,12 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const openaiApiKey = document.getElementById('openaiApiKey').value;
         const azureApiKey = document.getElementById('azureApiKey').value;
         const azureEndpoint = document.getElementById('azureEndpoint').value;
+        const enableAllInputs = document.getElementById('enableAllInputs').checked;
 
         chrome.storage.sync.set({
             apiProvider: apiProvider,
             openaiApiKey: openaiApiKey,
             azureApiKey: azureApiKey,
-            azureEndpoint: azureEndpoint
+            azureEndpoint: azureEndpoint,
+            enableAllInputs: enableAllInputs
         }, function() {
             const status = document.getElementById('status');
             status.textContent = chrome.i18n.getMessage('settingsSaved');
