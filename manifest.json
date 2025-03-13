@@ -4,7 +4,7 @@
     "version": "1.0",
     "description": "__MSG_extensionDescription__",
     "default_locale": "en",
-    "permissions": ["activeTab", "storage", "contextMenus"],
+    "permissions": ["activeTab", "storage", "contextMenus", "declarativeNetRequest"],
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
@@ -41,5 +41,5 @@
         }
     },
     "host_permissions": ["<all_urls>"],
-    "optional_permissions": []
+    "optional_permissions": ["declarativeNetRequestWithHostAccess"]
 }
