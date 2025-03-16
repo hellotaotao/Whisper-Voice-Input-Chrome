@@ -394,10 +394,19 @@ function insertTextAtCursor(text) {
         // For textarea and input elements
         const start = cursorPosition;
         const end = cursorPosition;
+
+        // Trigger focus and input events to clear placeholder
+        activeElement.dispatchEvent(new Event("focus", { bubbles: true }));
+
         activeElement.value =
             activeElement.value.substring(0, start) +
             text +
             activeElement.value.substring(end);
+
+        // Trigger input event to notify the page that the value has changed
+        activeElement.dispatchEvent(new Event("input", { bubbles: true }));
+
+        // Update cursor position
         activeElement.selectionStart = activeElement.selectionEnd =
             start + text.length;
     }
