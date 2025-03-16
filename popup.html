@@ -42,6 +42,19 @@
             <input type="text" id="azureEndpoint" name="azureEndpoint" />
         </div>
 
+        <div class="settings-group">
+            <label for="whisperPrompt">Transcription Prompt:</label>
+            <textarea
+                id="whisperPrompt"
+                rows="3"
+                placeholder="Add instructions to guide the transcription (optional)"
+            ></textarea>
+            <small class="help-text"
+                >This text will be sent with your audio to guide the
+                transcription.</small
+            >
+        </div>
+
         <button id="saveButton">Save</button>
         <div id="status"></div>
         

@@ -70,6 +70,23 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault(); // Prevent the browser's default save dialog
             document.getElementById('saveButton').click(); // Trigger the save button click
         }
+});
+
+    // Load existing prompt if available
+    chrome.storage.sync.get(["whisperPrompt"], function (result) {
+        if (result.whisperPrompt) {
+            document.getElementById("whisperPrompt").value =
+                result.whisperPrompt;
+        }
+    });
+
+    // Save the prompt when it changes
+    document
+        .getElementById("whisperPrompt")
+        .addEventListener("input", function () {
+            chrome.storage.sync.set({
+                whisperPrompt: this.value,
+            });
     });
 });
 

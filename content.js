@@ -322,11 +322,21 @@ function sendAudioToWhisper() {
     audioChunks = [];
 
     chrome.storage.sync.get(
-        ["apiProvider", "openaiApiKey", "azureApiKey", "azureEndpoint"],
+        [
+            "apiProvider",
+            "openaiApiKey",
+            "azureApiKey",
+            "azureEndpoint",
+            "whisperPrompt",
+        ],
         function (data) {
             const formData = new FormData();
             formData.append("file", audioBlob, "audio.webm");
             formData.append("model", "whisper-1");
+
+            if (data.whisperPrompt) {
+                formData.append("prompt", data.whisperPrompt);
+            }
 
             let apiUrl;
             let headers = {};
