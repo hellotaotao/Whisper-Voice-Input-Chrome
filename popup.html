@@ -1,23 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Voice Input Assistant</title>
-        <link rel="stylesheet" href="popup.css">
+        <link rel="stylesheet" href="popup.css" />
     </head>
     <body>
         <h2>Voice Input Assistant</h2>
-        
+
         <div class="form-group">
             <label>API Provider:</label>
             <div class="radio-group">
                 <label class="radio-label">
-                    <input type="radio" name="apiProvider" value="openai" checked>
+                    <input
+                        type="radio"
+                        name="apiProvider"
+                        value="openai"
+                        checked
+                    />
                     OpenAI Whisper
                 </label>
                 <label class="radio-label">
-                    <input type="radio" name="apiProvider" value="azure">
+                    <input type="radio" name="apiProvider" value="azure" />
                     Azure Speech Services
                 </label>
             </div>
@@ -25,7 +30,11 @@
 
         <div class="form-group">
             <label class="radio-label">
-                <input type="checkbox" id="enableAllInputs" name="enableAllInputs">
+                <input
+                    type="checkbox"
+                    id="enableAllInputs"
+                    name="enableAllInputs"
+                />
                 Enable all input fields
             </label>
         </div>
@@ -35,10 +44,12 @@
             <input type="password" id="openaiApiKey" name="openaiApiKey" />
         </div>
 
-        <div id="azureSettings" class="form-group" style="display: none">
+        <div id="azureSettings" class="form-group hidden">
             <label for="azureApiKey">Azure API Key:</label>
             <input type="password" id="azureApiKey" name="azureApiKey" />
-            <label for="azureEndpoint" style="margin-top: 10px">Azure API Endpoint:</label>
+            <label for="azureEndpoint" class="margin-top"
+                >Azure API Endpoint:</label
+            >
             <input type="text" id="azureEndpoint" name="azureEndpoint" />
         </div>
 
@@ -57,9 +68,9 @@
 
         <button id="saveButton">Save</button>
         <div id="status"></div>
-        
+
         <p id="shortcutInfo"></p>
-        
+
         <script src="popup.js"></script>
     </body>
 </html>
