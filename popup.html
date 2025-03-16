@@ -55,11 +55,12 @@
 
         <div class="form-group">
             <label for="whisperPrompt">Transcription Prompt:</label>
-            <textarea
+            <div
                 id="whisperPrompt"
+                contenteditable="true"
+                class="editable-field"
                 placeholder="Add instructions to guide the transcription"
-                class="text-input"
-            ></textarea>
+            ></div>
             <small class="help-text"
                 >This text will be sent with your audio to guide the
                 transcription.</small

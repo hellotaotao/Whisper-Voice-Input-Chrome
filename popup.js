@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Load existing prompt if available
     chrome.storage.sync.get(["whisperPrompt"], function (result) {
         if (result.whisperPrompt) {
-            document.getElementById("whisperPrompt").value =
+            document.getElementById("whisperPrompt").innerHTML =
                 result.whisperPrompt;
         }
     });
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .getElementById("whisperPrompt")
         .addEventListener("input", function () {
             chrome.storage.sync.set({
-                whisperPrompt: this.value,
+                whisperPrompt: this.innerHTML,
             });
         });
 });
