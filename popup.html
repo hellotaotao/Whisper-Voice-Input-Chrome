@@ -42,6 +42,35 @@
         <div id="openaiSettings" class="form-group">
             <label for="openaiApiKey">OpenAI API Key:</label>
             <input type="password" id="openaiApiKey" name="openaiApiKey" />
+
+            <label class="margin-top">Transcription Model:</label>
+            <div class="radio-group vertical">
+                <label class="radio-label">
+                    <input
+                        type="radio"
+                        name="transcriptionModel"
+                        value="gpt-4o-transcribe"
+                        checked
+                    />
+                    GPT-4o Transcribe
+                </label>
+                <label class="radio-label">
+                    <input
+                        type="radio"
+                        name="transcriptionModel"
+                        value="gpt-4o-mini-transcribe"
+                    />
+                    GPT-4o Mini Transcribe
+                </label>
+                <label class="radio-label">
+                    <input
+                        type="radio"
+                        name="transcriptionModel"
+                        value="whisper-1"
+                    />
+                    Whisper-1
+                </label>
+            </div>
         </div>
 
         <div id="azureSettings" class="form-group hidden">

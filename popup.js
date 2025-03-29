@@ -18,11 +18,17 @@ document.addEventListener("DOMContentLoaded", function () {
             azureApiKey: "",
             azureEndpoint: "",
             enableAllInputs: false,
+            transcriptionModel: "gpt-4o-transcribe",
         },
         function (items) {
             // Set the radio button
             document.querySelector(
                 `input[name="apiProvider"][value="${items.apiProvider}"]`
+            ).checked = true;
+
+            // Set transcription model
+            document.querySelector(
+                `input[name="transcriptionModel"][value="${items.transcriptionModel}"]`
             ).checked = true;
 
             // Set the saved values
@@ -52,6 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const apiProvider = document.querySelector(
                 'input[name="apiProvider"]:checked'
             ).value;
+            const transcriptionModel = document.querySelector(
+                'input[name="transcriptionModel"]:checked'
+            ).value;
             const openaiApiKey = document.getElementById("openaiApiKey").value;
             const azureApiKey = document.getElementById("azureApiKey").value;
             const azureEndpoint =
@@ -62,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
             chrome.storage.sync.set(
                 {
                     apiProvider: apiProvider,
+                    transcriptionModel: transcriptionModel,
                     openaiApiKey: openaiApiKey,
                     azureApiKey: azureApiKey,
                     azureEndpoint: azureEndpoint,

@@ -328,11 +328,16 @@ function sendAudioToWhisper() {
             "azureApiKey",
             "azureEndpoint",
             "whisperPrompt",
+            "transcriptionModel",
         ],
         function (data) {
             const formData = new FormData();
             formData.append("file", audioBlob, "audio.webm");
-            formData.append("model", "whisper-1");
+
+            // Use selected model or default to gpt-4o-transcribe
+            const model = data.transcriptionModel || "gpt-4o-transcribe";
+
+            formData.append("model", model);
 
             if (data.whisperPrompt) {
                 formData.append("prompt", data.whisperPrompt);

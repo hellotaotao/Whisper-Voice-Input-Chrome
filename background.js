@@ -27,6 +27,7 @@ chrome.runtime.onInstalled.addListener(() => {
             "azureApiKey",
             "azureEndpoint",
             "enableAllInputs",
+            "transcriptionModel",
         ],
         (items) => {
             // Prepare default settings
@@ -36,6 +37,8 @@ chrome.runtime.onInstalled.addListener(() => {
                 azureApiKey: items.azureApiKey || "",
                 azureEndpoint: items.azureEndpoint || "",
                 enableAllInputs: items.enableAllInputs || false,
+                transcriptionModel:
+                    items.transcriptionModel || "gpt-4o-transcribe",
             };
 
             // Save settings, preserving existing values
@@ -70,6 +73,7 @@ chrome.runtime.onInstalled.addListener(() => {
                     azureEndpoint: oldItems.useAzure
                         ? oldItems.apiEndpoint || ""
                         : "",
+                    transcriptionModel: "gpt-4o-transcribe",
                 };
 
                 chrome.storage.sync.set(migratedSettings, () => {
